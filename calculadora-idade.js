@@ -18,6 +18,9 @@ const voiceStatus = document.getElementById('voiceStatus');
 const yearsDisplay = document.getElementById('years');
 const monthsDisplay = document.getElementById('months');
 const daysDisplay = document.getElementById('days');
+const helpBtn = document.getElementById('helpBtn');
+const helpModal = document.getElementById('helpModal');
+const helpCloseBtn = document.getElementById('helpCloseBtn');
 const totalDaysDisplay = document.getElementById('totalDays');
 
 // Inicialização
@@ -25,6 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
     setupEventListeners();
     setupVoiceRecognition();
+    setupHelpModal();
 });
 
 // Configurar data atual como padrão
@@ -454,4 +458,31 @@ function showNotification(message, type = 'info') {
     setTimeout(() => {
         notification.remove();
     }, 4000);
+}
+
+// Configurar modal de ajuda
+function setupHelpModal() {
+    if (helpBtn && helpModal && helpCloseBtn) {
+        helpBtn.addEventListener('click', () => {
+            helpModal.classList.add('show');
+        });
+        
+        helpCloseBtn.addEventListener('click', () => {
+            helpModal.classList.remove('show');
+        });
+        
+        // Fechar modal clicando fora
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                helpModal.classList.remove('show');
+            }
+        });
+        
+        // Fechar modal com ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && helpModal.classList.contains('show')) {
+                helpModal.classList.remove('show');
+            }
+        });
+    }
 }

@@ -97,6 +97,10 @@ body {
     flex-direction: column;
     gap: 32px;
     align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
 }
 
 /* Year picker */

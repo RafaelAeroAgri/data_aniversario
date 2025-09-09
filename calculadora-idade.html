@@ -18,6 +18,13 @@
                 <span>Voltar</span>
             </button>
             <h1>Calculadora de Idade</h1>
+            <button class="help-btn" id="helpBtn" title="Como usar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            </button>
         </header>
 
         <main class="main">
@@ -101,6 +108,61 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Modal de Ajuda -->
+    <div class="help-modal" id="helpModal">
+        <div class="help-modal-content">
+            <div class="help-modal-header">
+                <h3>Como usar a Calculadora de Idade</h3>
+                <button class="help-close-btn" id="helpCloseBtn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="help-modal-body">
+                <div class="help-step">
+                    <div class="help-step-number">1</div>
+                    <div class="help-step-content">
+                        <h4>Clique no botão "Falar Data"</h4>
+                        <p>O botão ficará azul e começará a gravar</p>
+                    </div>
+                </div>
+                <div class="help-step">
+                    <div class="help-step-number">2</div>
+                    <div class="help-step-content">
+                        <h4>Fale a primeira data</h4>
+                        <p>Exemplo: "15 de janeiro de 1990" ou "15/01/1990"</p>
+                    </div>
+                </div>
+                <div class="help-step">
+                    <div class="help-step-number">3</div>
+                    <div class="help-step-content">
+                        <h4>Aguarde o processamento</h4>
+                        <p>O sistema mostrará "Aguarde..." e processará a data</p>
+                    </div>
+                </div>
+                <div class="help-step">
+                    <div class="help-step-number">4</div>
+                    <div class="help-step-content">
+                        <h4>Fale a segunda data</h4>
+                        <p>O sistema automaticamente começará a gravar novamente</p>
+                    </div>
+                </div>
+                <div class="help-step">
+                    <div class="help-step-number">5</div>
+                    <div class="help-step-content">
+                        <h4>Veja o resultado</h4>
+                        <p>A idade será calculada automaticamente em anos, meses e dias</p>
+                    </div>
+                </div>
+                <div class="help-tip">
+                    <strong>💡 Dica:</strong> Você também pode digitar as datas manualmente nos campos ou usar os botões de reset individuais para limpar cada campo.
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="calculadora-idade.js"></script>
