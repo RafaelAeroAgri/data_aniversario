@@ -6,17 +6,19 @@
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: #f8fafc;
     min-height: 100vh;
-    color: #333;
+    color: #1e293b;
     line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .container {
     max-width: 480px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 24px;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -25,51 +27,51 @@ body {
 /* Header */
 .header {
     text-align: center;
-    margin-bottom: 40px;
-    color: white;
+    margin-bottom: 48px;
+    margin-top: 60px;
+    color: #1e293b;
     position: relative;
 }
 
 .back-btn {
     position: absolute;
-    left: 0;
     top: 0;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
+    left: 0;
+    background: white;
+    border: 1px solid #e2e8f0;
     border-radius: 12px;
-    padding: 12px 16px;
-    color: white;
+    padding: 12px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    backdrop-filter: blur(10px);
+    justify-content: center;
+    color: #64748b;
+    text-decoration: none;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
 .back-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.back-btn:active {
-    transform: translateY(0);
+.back-btn svg {
+    width: 20px;
+    height: 20px;
 }
 
 .header h1 {
-    font-size: 2.5rem;
-    font-weight: 600;
+    font-size: 2.25rem;
+    font-weight: 700;
     margin-bottom: 8px;
-    margin-top: 60px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.header p {
-    font-size: 1.1rem;
-    opacity: 0.9;
-    font-weight: 300;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.02em;
 }
 
 /* Main content */
@@ -77,195 +79,63 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 32px;
 }
 
 /* Input section */
 .input-section {
-    background: white;
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 
 .input-group {
-    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .input-group label {
-    display: block;
-    font-weight: 500;
-    margin-bottom: 15px;
-    color: #555;
-    font-size: 1.1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
 }
 
 .month-select {
     width: 100%;
-    padding: 15px 20px;
-    border: 2px solid #e1e5e9;
+    padding: 16px 20px;
+    border: 1px solid #d1d5db;
     border-radius: 12px;
     font-size: 1rem;
     font-family: inherit;
-    transition: all 0.3s ease;
-    background: #f8f9fa;
+    transition: all 0.2s ease;
+    background: white;
+    color: #1e293b;
     cursor: pointer;
 }
 
 .month-select:focus {
     outline: none;
-    border-color: #667eea;
-    background: white;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .month-select:hover {
-    border-color: #667eea;
+    border-color: #9ca3af;
 }
 
 /* Result section */
 .result-section {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     animation: slideUp 0.5s ease-out;
 }
 
 @keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.result-card {
-    background: white;
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    text-align: center;
-}
-
-.result-card h2 {
-    font-size: 1.5rem;
-    margin-bottom: 25px;
-    color: #333;
-    font-weight: 600;
-}
-
-.months-display {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-}
-
-.month-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px 10px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 15px;
-    transition: transform 0.3s ease;
-}
-
-.month-item:hover {
-    transform: translateY(-5px);
-}
-
-.month-name {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #667eea;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.month-number {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #333;
-    line-height: 1;
-}
-
-.month-item.selected {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    transform: scale(1.05);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-}
-
-.month-item.selected .month-name {
-    color: white;
-    font-weight: 700;
-}
-
-.month-item.selected .month-number {
-    color: white;
-    font-size: 2.2rem;
-}
-
-/* Responsividade */
-@media (max-width: 480px) {
-    .container {
-        padding: 15px;
-    }
-    
-    .header h1 {
-        font-size: 2rem;
-        margin-top: 50px;
-    }
-    
-    .input-section {
-        padding: 20px;
-    }
-    
-    .result-card {
-        padding: 20px;
-    }
-    
-    .months-display {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    
-    .month-item.selected {
-        transform: scale(1.02);
-    }
-    
-    .month-item {
-        padding: 15px;
-    }
-    
-    .month-number {
-        font-size: 1.8rem;
-    }
-}
-
-@media (max-width: 360px) {
-    .header h1 {
-        font-size: 1.8rem;
-        margin-top: 45px;
-    }
-    
-    .input-section {
-        padding: 15px;
-    }
-    
-    .result-card {
-        padding: 15px;
-    }
-}
-
-/* Animações de entrada */
-.input-group {
-    animation: fadeInUp 0.6s ease-out;
-}
-
-@keyframes fadeInUp {
     from {
         opacity: 0;
         transform: translateY(20px);
@@ -273,5 +143,131 @@ body {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+.result-card h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #1e293b;
+    text-align: center;
+}
+
+.months-display {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+.month-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.month-item.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.month-item.selected {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 8px 12px -2px rgba(59, 130, 246, 0.4);
+}
+
+.month-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.month-item.selected:hover {
+    transform: scale(1.05) translateY(-2px);
+}
+
+.month-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.month-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.month-item.selected .month-name {
+    color: white;
+}
+
+.month-item.selected .month-number {
+    color: white;
+}
+
+/* Responsividade */
+@media (min-width: 640px) {
+    .months-display {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 16px;
+    }
+    
+    .header {
+        margin-top: 50px;
+        margin-bottom: 32px;
+    }
+    
+    .header h1 {
+        font-size: 2rem;
+    }
+    
+    .result-section {
+        padding: 24px;
+    }
+    
+    .month-item {
+        padding: 16px;
+    }
+    
+    .month-name {
+        font-size: 1.125rem;
+    }
+    
+    .month-number {
+        font-size: 1.75rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .header {
+        margin-top: 45px;
+    }
+    
+    .header h1 {
+        font-size: 1.875rem;
+    }
+    
+    .month-name {
+        font-size: 1rem;
+    }
+    
+    .month-number {
+        font-size: 1.5rem;
     }
 }

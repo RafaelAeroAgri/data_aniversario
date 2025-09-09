@@ -23,20 +23,15 @@
 
         <main class="main">
             <div class="input-section">
-                <div class="input-group">
-                    <label for="birthYear">Ano de Nascimento:</label>
-                    <div class="year-selector">
-                        <input type="range" id="birthYear" class="year-slider" min="1900" max="2100" value="2025">
+                <div class="year-picker-container">
+                    <div class="year-picker">
                         <div class="year-display" id="yearDisplay">2025</div>
+                        <div class="year-selector" id="yearSelector">
+                            <!-- Anos serão gerados dinamicamente -->
+                        </div>
                     </div>
-                </div>
-            </div>
-
-            <div class="result-section" id="resultSection">
-                <div class="result-card">
-                    <h2>Resultado</h2>
                     <div class="result-display">
-                        <p>A criança terá 18 anos no ano</p>
+                        <div class="result-label">Terá 18 anos em</div>
                         <div class="result-year" id="resultYear">2043</div>
                     </div>
                 </div>
