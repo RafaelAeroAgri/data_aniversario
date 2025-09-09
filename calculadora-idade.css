@@ -105,8 +105,15 @@ body {
     font-size: 1rem;
 }
 
+.input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .date-input {
-    width: 100%;
+    flex: 1;
     padding: 15px 20px;
     border: 2px solid #e1e5e9;
     border-radius: 12px;
@@ -121,6 +128,31 @@ body {
     border-color: #667eea;
     background: white;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.reset-field-btn {
+    background: #dc3545;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+}
+
+.reset-field-btn:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.reset-field-btn:active {
+    transform: translateY(0);
 }
 
 .button-group {

@@ -10,6 +10,8 @@ const currentDateInput = document.getElementById('currentDate');
 const voiceBtn = document.getElementById('voiceBtn');
 const voiceText = document.getElementById('voiceText');
 const resetBtn = document.getElementById('resetBtn');
+const resetBirthBtn = document.getElementById('resetBirthBtn');
+const resetCurrentBtn = document.getElementById('resetCurrentBtn');
 const resultSection = document.getElementById('resultSection');
 const voiceStatus = document.getElementById('voiceStatus');
 const yearsDisplay = document.getElementById('years');
@@ -39,6 +41,8 @@ function setupEventListeners() {
     currentDateInput.addEventListener('input', handleCurrentDateInput);
     voiceBtn.addEventListener('click', toggleVoiceRecording);
     resetBtn.addEventListener('click', resetCalculator);
+    resetBirthBtn.addEventListener('click', () => resetField('birth'));
+    resetCurrentBtn.addEventListener('click', () => resetField('current'));
 }
 
 // Configurar reconhecimento de voz
@@ -160,6 +164,26 @@ function resetCalculator() {
     birthDateInput.focus();
 }
 
+// Resetar campo específico
+function resetField(field) {
+    if (field === 'birth') {
+        birthDateInput.value = '';
+        birthDate = null;
+        showNotification('Data de nascimento limpa!', 'info');
+    } else if (field === 'current') {
+        currentDateInput.value = '';
+        currentDate = null;
+        showNotification('Data atual limpa!', 'info');
+    }
+    
+    // Recalcular se ainda há dados
+    if (birthDate && currentDate) {
+        calculateAndDisplayAge();
+    } else {
+        resultSection.style.display = 'none';
+    }
+}
+
 // Processar entrada de voz
 function processVoiceInput(transcript) {
     console.log('Transcrição:', transcript);
@@ -167,26 +191,14 @@ function processVoiceInput(transcript) {
     try {
         const dates = extractDatesFromTranscript(transcript);
         
-        if (dates.length === 2) {
-            // Duas datas encontradas - ordenar automaticamente
-            const sortedDates = dates.sort((a, b) => a - b);
-            birthDate = sortedDates[0];
-            currentDate = sortedDates[1];
-            
-            birthDateInput.value = formatDateToDDMMYYYY(birthDate);
-            currentDateInput.value = formatDateToDDMMYYYY(currentDate);
-            
-            showNotification('Duas datas reconhecidas e ordenadas automaticamente!', 'success');
-            calculateAndDisplayAge();
-        } else if (dates.length === 1) {
-            // Uma data encontrada - preencher no primeiro campo vazio
+        if (dates.length === 1) {
             const date = dates[0];
             
             if (!birthDate) {
                 // Primeiro campo vazio - preencher data de nascimento
                 birthDate = date;
                 birthDateInput.value = formatDateToDDMMYYYY(birthDate);
-                showNotification('Primeira data reconhecida! Fale a segunda data.', 'info');
+                showNotification('Data de nascimento reconhecida! Fale a segunda data.', 'info');
                 
                 // Se já temos data atual, calcular
                 if (currentDate) {
@@ -196,7 +208,7 @@ function processVoiceInput(transcript) {
                 // Segundo campo vazio - preencher data atual
                 currentDate = date;
                 currentDateInput.value = formatDateToDDMMYYYY(currentDate);
-                showNotification('Segunda data reconhecida!', 'success');
+                showNotification('Data atual reconhecida!', 'success');
                 
                 // Calcular idade
                 calculateAndDisplayAge();

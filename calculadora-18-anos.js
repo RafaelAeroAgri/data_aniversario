@@ -1,73 +1,31 @@
 // Configurações globais
-const birthYearInput = document.getElementById('birthYear');
-const resultSection = document.getElementById('resultSection');
-const birthYearDisplay = document.getElementById('birthYearDisplay');
-const eighteenYearDisplay = document.getElementById('eighteenYearDisplay');
+const birthYearSlider = document.getElementById('birthYear');
+const yearDisplay = document.getElementById('yearDisplay');
 const resultYear = document.getElementById('resultYear');
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
+    // Calcular resultado inicial
+    calculateEighteenYears(2025);
 });
 
 // Configurar event listeners
 function setupEventListeners() {
-    birthYearInput.addEventListener('input', handleYearInput);
-    birthYearInput.addEventListener('change', handleYearInput);
+    birthYearSlider.addEventListener('input', handleYearInput);
 }
 
 // Lidar com entrada de ano
 function handleYearInput(event) {
     const year = parseInt(event.target.value);
-    
-    if (year && year >= 1900 && year <= 2100) {
-        calculateEighteenYears(year);
-    } else if (year && (year < 1900 || year > 2100)) {
-        showNotification('Por favor, insira um ano entre 1900 e 2100', 'error');
-        hideResult();
-    } else {
-        hideResult();
-    }
+    yearDisplay.textContent = year;
+    calculateEighteenYears(year);
 }
 
 // Calcular quando terá 18 anos
 function calculateEighteenYears(birthYear) {
     const eighteenYear = birthYear + 18;
-    
-    // Atualizar displays
-    birthYearDisplay.textContent = birthYear;
-    eighteenYearDisplay.textContent = eighteenYear;
     resultYear.textContent = eighteenYear;
-    
-    // Mostrar resultado
-    resultSection.style.display = 'block';
-    resultSection.scrollIntoView({ behavior: 'smooth' });
-    
-    // Animação dos valores
-    animateValues();
-}
-
-// Esconder resultado
-function hideResult() {
-    resultSection.style.display = 'none';
-}
-
-// Animar valores
-function animateValues() {
-    const values = [birthYearDisplay, eighteenYearDisplay];
-    
-    values.forEach((element, index) => {
-        // Resetar animação
-        element.style.opacity = '0';
-        element.style.transform = 'translateY(20px)';
-        
-        // Aplicar animação com delay
-        setTimeout(() => {
-            element.style.transition = 'all 0.5s ease-out';
-            element.style.opacity = '1';
-            element.style.transform = 'translateY(0)';
-        }, index * 200);
-    });
 }
 
 // Mostrar notificação
