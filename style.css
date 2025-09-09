@@ -57,6 +57,20 @@ body {
     gap: 20px;
 }
 
+@media (min-width: 768px) {
+    .apps-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .apps-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+    }
+}
+
 .app-card {
     background: white;
     border-radius: 20px;
