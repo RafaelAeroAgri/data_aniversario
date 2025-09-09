@@ -53,7 +53,7 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 16px;
 }
 
 /* Apps Grid */
@@ -119,19 +119,29 @@ body {
     width: 48px;
     height: 48px;
     margin: 0 auto 16px;
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    background: none;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #3b82f6;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+    box-shadow: none;
+}
+
+.app-icon svg {
+    width: 48px;
+    height: 48px;
+    color: #3b82f6;
+    transition: all 0.2s ease;
 }
 
 .app-card:hover .app-icon {
     transform: scale(1.05);
-    box-shadow: 0 8px 12px -2px rgba(59, 130, 246, 0.4);
+}
+
+.app-card:hover .app-icon svg {
+    color: #1d4ed8;
 }
 
 .app-card h3 {
@@ -152,7 +162,7 @@ body {
 /* Footer */
 .footer {
     text-align: center;
-    margin-top: 48px;
+    margin-top: 24px;
     color: #64748b;
     font-size: 0.875rem;
     font-weight: 400;
@@ -210,6 +220,11 @@ body {
         margin-bottom: 12px;
     }
     
+    .app-icon svg {
+        width: 44px;
+        height: 44px;
+    }
+    
     .app-card h3 {
         font-size: 1rem;
     }
@@ -250,6 +265,11 @@ body {
         margin-bottom: 10px;
     }
     
+    .app-icon svg {
+        width: 40px;
+        height: 40px;
+    }
+    
     .app-card h3 {
         font-size: 0.9375rem;
         margin-bottom: 6px;
@@ -288,6 +308,11 @@ body {
         margin-bottom: 8px;
     }
     
+    .app-icon svg {
+        width: 36px;
+        height: 36px;
+    }
+    
     .app-card h3 {
         font-size: 0.875rem;
     }
@@ -307,6 +332,11 @@ body {
     }
     
     .app-icon {
+        width: 34px;
+        height: 34px;
+    }
+    
+    .app-icon svg {
         width: 34px;
         height: 34px;
     }
@@ -353,6 +383,11 @@ body {
         margin-bottom: 12px;
     }
     
+    .app-icon svg {
+        width: 40px;
+        height: 40px;
+    }
+    
     .app-card h3 {
         font-size: 1rem;
         margin-bottom: 8px;
@@ -378,6 +413,11 @@ body {
     }
     
     .app-icon {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .app-icon svg {
         width: 32px;
         height: 32px;
     }
