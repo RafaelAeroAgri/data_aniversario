@@ -25,10 +25,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Configurar data atual como padrão
 function initializeApp() {
-    const today = new Date();
-    const todayString = formatDateToDDMMYYYY(today);
-    currentDateInput.value = todayString;
-    currentDate = today;
+    // Deixar ambos os campos vazios
+    birthDateInput.value = '';
+    currentDateInput.value = '';
+    birthDate = null;
+    currentDate = null;
 }
 
 // Configurar event listeners
@@ -137,138 +138,90 @@ function processVoiceInput(transcript) {
     console.log('Transcrição:', transcript);
     
     try {
-        const result = parseVoiceDates(transcript);
+        const dates = extractDatesFromTranscript(transcript);
         
-        if (result.birth && result.current) {
-            // Ambas as datas foram encontradas
-            birthDate = result.birth;
-            currentDate = result.current;
+        if (dates.length === 2) {
+            // Duas datas encontradas - ordenar automaticamente
+            const sortedDates = dates.sort((a, b) => a - b);
+            birthDate = sortedDates[0];
+            currentDate = sortedDates[1];
             
             birthDateInput.value = formatDateToDDMMYYYY(birthDate);
             currentDateInput.value = formatDateToDDMMYYYY(currentDate);
             
-            showNotification('Datas reconhecidas com sucesso!', 'success');
+            showNotification('Duas datas reconhecidas e ordenadas automaticamente!', 'success');
             calculateAndDisplayAge();
-        } else if (result.birth) {
-            // Apenas data de nascimento foi encontrada
-            birthDate = result.birth;
-            birthDateInput.value = formatDateToDDMMYYYY(birthDate);
-            showNotification('Data de nascimento reconhecida! Fale a data atual.', 'info');
+        } else if (dates.length === 1) {
+            // Uma data encontrada - preencher no primeiro campo vazio
+            const date = dates[0];
             
-            // Se já temos data atual, calcular
-            if (currentDate) {
+            if (!birthDate) {
+                // Primeiro campo vazio - preencher data de nascimento
+                birthDate = date;
+                birthDateInput.value = formatDateToDDMMYYYY(birthDate);
+                showNotification('Primeira data reconhecida! Fale a segunda data.', 'info');
+                
+                // Se já temos data atual, calcular
+                if (currentDate) {
+                    calculateAndDisplayAge();
+                }
+            } else if (!currentDate) {
+                // Segundo campo vazio - preencher data atual
+                currentDate = date;
+                currentDateInput.value = formatDateToDDMMYYYY(currentDate);
+                showNotification('Segunda data reconhecida!', 'success');
+                
+                // Calcular idade
                 calculateAndDisplayAge();
-            }
-        } else if (result.current) {
-            // Apenas data atual foi encontrada
-            currentDate = result.current;
-            currentDateInput.value = formatDateToDDMMYYYY(currentDate);
-            showNotification('Data atual reconhecida! Fale a data de nascimento.', 'info');
-            
-            // Se já temos data de nascimento, calcular
-            if (birthDate) {
+            } else {
+                // Ambos campos preenchidos - substituir a mais recente
+                if (date > birthDate) {
+                    currentDate = date;
+                    currentDateInput.value = formatDateToDDMMYYYY(currentDate);
+                    showNotification('Data atual atualizada!', 'info');
+                } else {
+                    birthDate = date;
+                    birthDateInput.value = formatDateToDDMMYYYY(birthDate);
+                    showNotification('Data de nascimento atualizada!', 'info');
+                }
                 calculateAndDisplayAge();
             }
         } else {
-            showNotification('Não foi possível entender as datas. Tente falar: "nasceu dia 15/01/1990 e assinou dia 20/12/2024"', 'error');
+            showNotification('Não foi possível entender a data. Tente falar: "15/01/1990" ou "15 de janeiro de 1990"', 'error');
         }
     } catch (error) {
         console.error('Erro ao processar entrada de voz:', error);
-        showNotification('Erro ao processar as datas faladas.', 'error');
+        showNotification('Erro ao processar a data falada.', 'error');
     }
 }
 
-// Converter fala em datas
-function parseVoiceDates(transcript) {
+// Extrair datas da transcrição
+function extractDatesFromTranscript(transcript) {
     const normalized = transcript
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .toLowerCase();
     
-    const result = { birth: null, current: null };
+    const dates = [];
     
-    // Padrões para data de nascimento (contexto: nasceu, nascimento, nascido)
-    const birthPatterns = [
-        /(?:nasceu|nascimento|nascido).*?(\d{1,2})\/(\d{1,2})\/(\d{4})/,
-        /(?:nasceu|nascimento|nascido).*?dia\s+(\d{1,2})\s+de\s+(\w+)\s+de\s+(\d{4})/,
-        /(?:nasceu|nascimento|nascido).*?(\d{1,2})\s+de\s+(\w+)\s+de\s+(\d{4})/
+    // Padrões para encontrar datas
+    const patterns = [
+        /(\d{1,2})\/(\d{1,2})\/(\d{4})/g,
+        /(\d{1,2})\s+de\s+(\w+)\s+de\s+(\d{4})/g
     ];
     
-    // Padrões para data atual (contexto: assinou, assinatura, hoje, atual, agora)
-    const currentPatterns = [
-        /(?:assinou|assinatura|hoje|atual|agora).*?(\d{1,2})\/(\d{1,2})\/(\d{4})/,
-        /(?:assinou|assinatura|hoje|atual|agora).*?dia\s+(\d{1,2})\s+de\s+(\w+)\s+de\s+(\d{4})/,
-        /(?:assinou|assinatura|hoje|atual|agora).*?(\d{1,2})\s+de\s+(\w+)\s+de\s+(\d{4})/
-    ];
-    
-    // Tentar encontrar data de nascimento por contexto
-    for (const pattern of birthPatterns) {
-        const match = normalized.match(pattern);
-        if (match) {
-            const date = parseDateFromMatch(match, pattern);
-            if (date) {
-                result.birth = date;
-                break;
-            }
-        }
-    }
-    
-    // Tentar encontrar data atual por contexto
-    for (const pattern of currentPatterns) {
-        const match = normalized.match(pattern);
-        if (match) {
-            const date = parseDateFromMatch(match, pattern);
-            if (date) {
-                result.current = date;
-                break;
-            }
-        }
-    }
-    
-    // Se não encontrou com palavras-chave, tentar padrões gerais e ordenar automaticamente
-    if (!result.birth && !result.current) {
-        const generalPatterns = [
-            /(\d{1,2})\/(\d{1,2})\/(\d{4})/g,
-            /(\d{1,2})\s+de\s+(\w+)\s+de\s+(\d{4})/g
-        ];
+    for (const pattern of patterns) {
+        const matches = [...normalized.matchAll(pattern)];
         
-        for (const pattern of generalPatterns) {
-            const matches = [...normalized.matchAll(pattern)];
-            if (matches.length >= 2) {
-                const date1 = parseDateFromMatch(matches[0], pattern);
-                const date2 = parseDateFromMatch(matches[1], pattern);
-                
-                if (date1 && date2) {
-                    // Ordenar automaticamente: data mais antiga = nascimento, mais recente = atual
-                    if (date1 < date2) {
-                        result.birth = date1;
-                        result.current = date2;
-                    } else {
-                        result.birth = date2;
-                        result.current = date1;
-                    }
-                    break;
-                }
-            } else if (matches.length === 1) {
-                // Apenas uma data encontrada - tentar determinar contexto pela posição na frase
-                const date = parseDateFromMatch(matches[0], pattern);
-                if (date) {
-                    // Se a data aparece no início da frase, provavelmente é nascimento
-                    // Se aparece no final, provavelmente é atual
-                    const datePosition = normalized.indexOf(matches[0][0]);
-                    const phraseLength = normalized.length;
-                    
-                    if (datePosition < phraseLength / 2) {
-                        result.birth = date;
-                    } else {
-                        result.current = date;
-                    }
-                }
+        for (const match of matches) {
+            const date = parseDateFromMatch(match, pattern);
+            if (date) {
+                dates.push(date);
             }
         }
     }
     
-    return result;
+    return dates;
 }
 
 // Converter match em data
