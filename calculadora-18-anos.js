@@ -6,7 +6,7 @@ const resultYear = document.getElementById('resultYear');
 
 let currentYear = new Date().getFullYear();
 let selectedYear = currentYear;
-let minYear = currentYear - 17; // Máximo que alguém pode não ter 18 anos
+let minYear = currentYear - 18; // Máximo que alguém pode não ter 18 anos
 let maxYear = currentYear;
 
 // Inicialização
