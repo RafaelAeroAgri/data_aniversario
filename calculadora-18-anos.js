@@ -82,7 +82,89 @@ function createYearSelector() {
 function setupScrollBehavior(yearListElement) {
     let isScrolling = false;
     let scrollTimeout;
+    let startY = 0;
+    let isDragging = false;
+    let currentY = 0;
+    let velocity = 0;
+    let lastY = 0;
+    let lastTime = 0;
     
+    // Mouse events
+    yearSelector.addEventListener('mousedown', (e) => {
+        startY = e.clientY;
+        isDragging = true;
+        yearListElement.style.transition = 'none';
+        yearSelector.style.cursor = 'grabbing';
+        e.preventDefault();
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        
+        const deltaY = e.clientY - startY;
+        const currentScroll = yearSelector.scrollTop - deltaY;
+        yearSelector.scrollTop = currentScroll;
+        startY = e.clientY;
+    });
+    
+    document.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            yearSelector.style.cursor = 'grab';
+            snapToNearestYear(yearListElement);
+        }
+    });
+    
+    // Touch events para mobile
+    yearSelector.addEventListener('touchstart', (e) => {
+        startY = e.touches[0].clientY;
+        currentY = startY;
+        isDragging = true;
+        lastY = startY;
+        lastTime = Date.now();
+        yearListElement.style.transition = 'none';
+        e.preventDefault();
+    });
+    
+    yearSelector.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        
+        currentY = e.touches[0].clientY;
+        const deltaY = currentY - startY;
+        const currentScroll = yearSelector.scrollTop - deltaY;
+        yearSelector.scrollTop = currentScroll;
+        startY = currentY;
+        
+        // Calcular velocidade
+        const now = Date.now();
+        const timeDelta = now - lastTime;
+        if (timeDelta > 0) {
+            velocity = (currentY - lastY) / timeDelta;
+        }
+        lastY = currentY;
+        lastTime = now;
+        
+        e.preventDefault();
+    });
+    
+    yearSelector.addEventListener('touchend', () => {
+        if (isDragging) {
+            isDragging = false;
+            
+            // Aplicar momentum se houver velocidade
+            if (Math.abs(velocity) > 0.5) {
+                const momentum = velocity * 100;
+                const targetScroll = yearSelector.scrollTop - momentum;
+                yearSelector.scrollTop = targetScroll;
+            }
+            
+            setTimeout(() => {
+                snapToNearestYear(yearListElement);
+            }, 100);
+        }
+    });
+    
+    // Scroll events
     yearSelector.addEventListener('scroll', () => {
         if (!isScrolling) {
             isScrolling = true;
@@ -96,29 +178,8 @@ function setupScrollBehavior(yearListElement) {
         }, 150);
     });
     
-    // Touch events para mobile
-    let startY = 0;
-    let isDragging = false;
-    
-    yearSelector.addEventListener('touchstart', (e) => {
-        startY = e.touches[0].clientY;
-        isDragging = true;
-        yearListElement.style.transition = 'none';
-    });
-    
-    yearSelector.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        e.preventDefault();
-    });
-    
-    yearSelector.addEventListener('touchend', () => {
-        if (isDragging) {
-            isDragging = false;
-            setTimeout(() => {
-                snapToNearestYear(yearListElement);
-            }, 100);
-        }
-    });
+    // Adicionar cursor grab
+    yearSelector.style.cursor = 'grab';
 }
 
 // Alinhar ao ano mais próximo

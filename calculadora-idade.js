@@ -3,6 +3,8 @@ let recognition = null;
 let isRecording = false;
 let birthDate = null;
 let currentDate = null;
+let currentRecordingStep = 'birth'; // 'birth', 'current', 'waiting'
+let isWaitingForNext = false;
 
 // Elementos DOM
 const birthDateInput = document.getElementById('birthDate');
@@ -33,6 +35,9 @@ function initializeApp() {
     currentDateInput.value = '';
     birthDate = null;
     currentDate = null;
+    currentRecordingStep = 'birth';
+    isWaitingForNext = false;
+    updateVoiceButton();
 }
 
 // Configurar event listeners
@@ -51,136 +56,87 @@ function setupVoiceRecognition() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
         
-        recognition.continuous = true; // Mudado para true para permitir pausas
-        recognition.interimResults = true; // Mudado para true para capturar resultados parciais
+        recognition.continuous = false;
+        recognition.interimResults = false;
         recognition.lang = 'pt-BR';
-        recognition.maxAlternatives = 1;
-        
-        // Configurar timeout personalizado
-        let silenceTimer = null;
-        let lastResultTime = Date.now();
         
         recognition.onstart = function() {
             isRecording = true;
-            showVoiceStatus();
             updateVoiceButton();
-            lastResultTime = Date.now();
+            showNotification(`Gravando... Fale a ${currentRecordingStep === 'birth' ? 'data de nascimento' : 'data atual'}`, 'info');
         };
         
         recognition.onresult = function(event) {
-            lastResultTime = Date.now();
-            
-            // Limpar timer anterior
-            if (silenceTimer) {
-                clearTimeout(silenceTimer);
-            }
-            
-            // Verificar se há resultado final
-            let finalTranscript = '';
-            let interimTranscript = '';
-            
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript;
-                if (event.results[i].isFinal) {
-                    finalTranscript += transcript;
-                } else {
-                    interimTranscript += transcript;
-                }
-            }
-            
-            // Se há resultado final, processar
-            if (finalTranscript) {
-                processVoiceInput(finalTranscript.toLowerCase());
-            }
-            
-            // Configurar timer para aguardar mais silêncio (5 segundos)
-            silenceTimer = setTimeout(() => {
-                if (isRecording) {
-                    recognition.stop();
-                }
-            }, 5000);
+            const transcript = event.results[0][0].transcript;
+            processVoiceInput(transcript);
         };
         
         recognition.onerror = function(event) {
-            console.error('Erro no reconhecimento de voz:', event.error);
-            hideVoiceStatus();
+            console.error('Erro no reconhecimento:', event.error);
+            isRecording = false;
+            isWaitingForNext = false;
+            currentRecordingStep = 'birth';
             updateVoiceButton();
-            showNotification('Erro no reconhecimento de voz. Tente novamente.', 'error');
-            if (silenceTimer) {
-                clearTimeout(silenceTimer);
-            }
+            showNotification('Erro no reconhecimento de voz', 'error');
         };
         
         recognition.onend = function() {
             isRecording = false;
-            hideVoiceStatus();
             updateVoiceButton();
-            if (silenceTimer) {
-                clearTimeout(silenceTimer);
-            }
         };
     } else {
-        voiceBtn.style.display = 'none';
-        console.warn('Reconhecimento de voz não suportado neste navegador');
+        showNotification('Reconhecimento de voz não suportado neste navegador', 'error');
+    }
+}
+
+// Atualizar botão de voz
+function updateVoiceButton() {
+    if (isRecording) {
+        voiceBtn.classList.add('recording');
+        voiceBtn.innerHTML = `
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+                <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+            Gravando...
+        `;
+    } else if (isWaitingForNext) {
+        voiceBtn.classList.add('waiting');
+        voiceBtn.innerHTML = `
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12,6 12,12 16,14"/>
+            </svg>
+            Aguarde...
+        `;
+    } else {
+        voiceBtn.classList.remove('recording', 'waiting');
+        const stepText = currentRecordingStep === 'birth' ? 'Data de Nascimento' : 'Data Atual';
+        voiceBtn.innerHTML = `
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+                <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+            Falar ${stepText}
+        `;
     }
 }
 
 // Alternar gravação de voz
 function toggleVoiceRecording() {
-    if (!recognition) {
-        showNotification('Reconhecimento de voz não disponível', 'error');
+    if (isWaitingForNext) {
+        showNotification('Aguarde o processamento da data anterior', 'info');
         return;
     }
     
-    if (isRecording) {
+    if (isRecording && recognition) {
         recognition.stop();
     } else {
         recognition.start();
-    }
-}
-
-// Resetar calculadora
-function resetCalculator() {
-    // Limpar campos de entrada
-    birthDateInput.value = '';
-    currentDateInput.value = '';
-    
-    // Limpar variáveis
-    birthDate = null;
-    currentDate = null;
-    
-    // Esconder resultado
-    resultSection.style.display = 'none';
-    
-    // Parar gravação se estiver ativa
-    if (isRecording && recognition) {
-        recognition.stop();
-    }
-    
-    // Mostrar notificação
-    showNotification('Calculadora resetada!', 'info');
-    
-    // Focar no primeiro campo
-    birthDateInput.focus();
-}
-
-// Resetar campo específico
-function resetField(field) {
-    if (field === 'birth') {
-        birthDateInput.value = '';
-        birthDate = null;
-        showNotification('Data de nascimento limpa!', 'info');
-    } else if (field === 'current') {
-        currentDateInput.value = '';
-        currentDate = null;
-        showNotification('Data atual limpa!', 'info');
-    }
-    
-    // Recalcular se ainda há dados
-    if (birthDate && currentDate) {
-        calculateAndDisplayAge();
-    } else {
-        resultSection.style.display = 'none';
     }
 }
 
@@ -194,36 +150,35 @@ function processVoiceInput(transcript) {
         if (dates.length === 1) {
             const date = dates[0];
             
-            if (!birthDate) {
-                // Primeiro campo vazio - preencher data de nascimento
+            if (currentRecordingStep === 'birth') {
+                // Preencher data de nascimento
                 birthDate = date;
                 birthDateInput.value = formatDateToDDMMYYYY(birthDate);
-                showNotification('Data de nascimento reconhecida! Fale a segunda data.', 'info');
+                showNotification('Data de nascimento reconhecida!', 'success');
                 
-                // Se já temos data atual, calcular
-                if (currentDate) {
-                    calculateAndDisplayAge();
-                }
-            } else if (!currentDate) {
-                // Segundo campo vazio - preencher data atual
+                // Aguardar um pouco e preparar para próxima data
+                isWaitingForNext = true;
+                updateVoiceButton();
+                
+                setTimeout(() => {
+                    currentRecordingStep = 'current';
+                    isWaitingForNext = false;
+                    updateVoiceButton();
+                    showNotification('Agora fale a data atual', 'info');
+                }, 2000);
+                
+            } else if (currentRecordingStep === 'current') {
+                // Preencher data atual
                 currentDate = date;
                 currentDateInput.value = formatDateToDDMMYYYY(currentDate);
                 showNotification('Data atual reconhecida!', 'success');
                 
                 // Calcular idade
                 calculateAndDisplayAge();
-            } else {
-                // Ambos campos preenchidos - substituir a mais recente
-                if (date > birthDate) {
-                    currentDate = date;
-                    currentDateInput.value = formatDateToDDMMYYYY(currentDate);
-                    showNotification('Data atual atualizada!', 'info');
-                } else {
-                    birthDate = date;
-                    birthDateInput.value = formatDateToDDMMYYYY(birthDate);
-                    showNotification('Data de nascimento atualizada!', 'info');
-                }
-                calculateAndDisplayAge();
+                
+                // Resetar para próxima vez
+                currentRecordingStep = 'birth';
+                updateVoiceButton();
             }
         } else {
             showNotification('Não foi possível entender a data. Tente falar: "15/01/1990" ou "15 de janeiro de 1990"', 'error');
@@ -243,19 +198,38 @@ function extractDatesFromTranscript(transcript) {
     
     const dates = [];
     
-    // Padrões para encontrar datas
-    const patterns = [
-        /(\d{1,2})\/(\d{1,2})\/(\d{4})/g,
-        /(\d{1,2})\s+de\s+(\w+)\s+de\s+(\d{4})/g
-    ];
+    // Padrões para datas no formato dd/mm/aaaa
+    const datePattern = /(\d{1,2})\/(\d{1,2})\/(\d{4})/g;
+    let match;
     
-    for (const pattern of patterns) {
-        const matches = [...normalized.matchAll(pattern)];
+    while ((match = datePattern.exec(normalized)) !== null) {
+        const day = parseInt(match[1]);
+        const month = parseInt(match[2]);
+        const year = parseInt(match[3]);
         
-        for (const match of matches) {
-            const date = parseDateFromMatch(match, pattern);
-            if (date) {
-                dates.push(date);
+        if (isValidDate(day, month, year)) {
+            dates.push(new Date(year, month - 1, day));
+        }
+    }
+    
+    // Padrões para datas faladas (ex: "15 de janeiro de 1990")
+    const monthNames = {
+        'janeiro': 1, 'fevereiro': 2, 'marco': 3, 'abril': 4,
+        'maio': 5, 'junho': 6, 'julho': 7, 'agosto': 8,
+        'setembro': 9, 'outubro': 10, 'novembro': 11, 'dezembro': 12
+    };
+    
+    const spokenDatePattern = /(\d{1,2})\s+de\s+(\w+)\s+de\s+(\d{4})/g;
+    
+    while ((match = spokenDatePattern.exec(normalized)) !== null) {
+        const day = parseInt(match[1]);
+        const monthName = match[2];
+        const year = parseInt(match[3]);
+        
+        if (monthNames[monthName]) {
+            const month = monthNames[monthName];
+            if (isValidDate(day, month, year)) {
+                dates.push(new Date(year, month - 1, day));
             }
         }
     }
@@ -263,43 +237,7 @@ function extractDatesFromTranscript(transcript) {
     return dates;
 }
 
-// Converter match em data
-function parseDateFromMatch(match, pattern) {
-    if (pattern.source.includes('/')) {
-        // Formato dd/mm/aaaa
-        const day = parseInt(match[1]);
-        const month = parseInt(match[2]);
-        const year = parseInt(match[3]);
-        
-        if (isValidDate(day, month, year)) {
-            return new Date(year, month - 1, day);
-        }
-    } else {
-        // Formato com nome do mês
-        const day = parseInt(match[1]);
-        const month = parseMonthName(match[2]);
-        const year = parseInt(match[3]);
-        
-        if (isValidDate(day, month, year)) {
-            return new Date(year, month - 1, day);
-        }
-    }
-    
-    return null;
-}
-
-// Converter nome do mês para número
-function parseMonthName(monthName) {
-    const months = {
-        'janeiro': 1, 'fevereiro': 2, 'marco': 3, 'abril': 4,
-        'maio': 5, 'junho': 6, 'julho': 7, 'agosto': 8,
-        'setembro': 9, 'outubro': 10, 'novembro': 11, 'dezembro': 12
-    };
-    
-    return months[monthName] || 0;
-}
-
-// Validar se a data é válida
+// Validar data
 function isValidDate(day, month, year) {
     if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > 2100) {
         return false;
@@ -317,244 +255,166 @@ function formatDateToDDMMYYYY(date) {
     return `${day}/${month}/${year}`;
 }
 
-// Converter dd/mm/aaaa para Date
-function parseDDMMYYYY(dateString) {
-    const parts = dateString.split('/');
-    if (parts.length !== 3) return null;
-    
-    const day = parseInt(parts[0]);
-    const month = parseInt(parts[1]);
-    const year = parseInt(parts[2]);
-    
-    if (!isValidDate(day, month, year)) return null;
-    
-    return new Date(year, month - 1, day);
-}
-
 // Lidar com entrada de data de nascimento
 function handleBirthDateInput(event) {
     const value = event.target.value;
-    
-    // Aplicar máscara dd/mm/aaaa
-    const maskedValue = applyDateMask(value);
-    event.target.value = maskedValue;
-    
-    if (maskedValue.length === 10) {
-        const date = parseDDMMYYYY(maskedValue);
+    if (value.length === 10) {
+        const date = parseDateInput(value);
         if (date) {
             birthDate = date;
-            calculateAndDisplayAge();
-        } else {
-            showNotification('Data de nascimento inválida', 'error');
+            if (currentDate) {
+                calculateAndDisplayAge();
+            }
         }
+    } else {
+        birthDate = null;
+        resultSection.style.display = 'none';
     }
 }
 
 // Lidar com entrada de data atual
 function handleCurrentDateInput(event) {
     const value = event.target.value;
-    
-    // Aplicar máscara dd/mm/aaaa
-    const maskedValue = applyDateMask(value);
-    event.target.value = maskedValue;
-    
-    if (maskedValue.length === 10) {
-        const date = parseDDMMYYYY(maskedValue);
+    if (value.length === 10) {
+        const date = parseDateInput(value);
         if (date) {
             currentDate = date;
-            calculateAndDisplayAge();
-        } else {
-            showNotification('Data atual inválida', 'error');
+            if (birthDate) {
+                calculateAndDisplayAge();
+            }
         }
+    } else {
+        currentDate = null;
+        resultSection.style.display = 'none';
     }
 }
 
-// Aplicar máscara de data
-function applyDateMask(value) {
-    // Remover caracteres não numéricos
-    const numbers = value.replace(/\D/g, '');
-    
-    // Aplicar máscara dd/mm/aaaa
-    if (numbers.length <= 2) {
-        return numbers;
-    } else if (numbers.length <= 4) {
-        return `${numbers.slice(0, 2)}/${numbers.slice(2)}`;
-    } else {
-        return `${numbers.slice(0, 2)}/${numbers.slice(2, 4)}/${numbers.slice(4, 8)}`;
+// Parsear entrada de data
+function parseDateInput(value) {
+    const parts = value.split('/');
+    if (parts.length === 3) {
+        const day = parseInt(parts[0]);
+        const month = parseInt(parts[1]);
+        const year = parseInt(parts[2]);
+        
+        if (isValidDate(day, month, year)) {
+            return new Date(year, month - 1, day);
+        }
     }
+    return null;
 }
 
 // Calcular e exibir idade
 function calculateAndDisplayAge() {
     if (!birthDate || !currentDate) return;
     
-    if (birthDate >= currentDate) {
-        showNotification('A data de nascimento deve ser anterior à data atual.', 'error');
-        return;
-    }
+    const ageDifference = calculateAgeDifference(birthDate, currentDate);
     
-    const age = calculateAgeDifference(birthDate, currentDate);
-    displayResult(age);
+    yearsDisplay.textContent = ageDifference.years;
+    monthsDisplay.textContent = ageDifference.months;
+    daysDisplay.textContent = ageDifference.days;
+    totalDaysDisplay.textContent = ageDifference.totalDays;
+    
+    resultSection.style.display = 'block';
+    resultSection.scrollIntoView({ behavior: 'smooth' });
+    
+    animateValues();
 }
 
-// Calcular diferença entre datas
+// Calcular diferença de idade
 function calculateAgeDifference(birthDate, currentDate) {
     let years = currentDate.getFullYear() - birthDate.getFullYear();
     let months = currentDate.getMonth() - birthDate.getMonth();
     let days = currentDate.getDate() - birthDate.getDate();
     
-    // Ajustar se o dia atual é menor que o dia de nascimento
     if (days < 0) {
         months--;
         const lastMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
         days += lastMonth.getDate();
     }
     
-    // Ajustar se o mês atual é menor que o mês de nascimento
     if (months < 0) {
         years--;
         months += 12;
     }
     
-    // Calcular total de dias
-    const timeDiff = currentDate.getTime() - birthDate.getTime();
-    const totalDays = Math.floor(timeDiff / (1000 * 3600 * 24));
+    const totalDays = Math.floor((currentDate - birthDate) / (1000 * 60 * 60 * 24));
     
-    return {
-        years,
-        months,
-        days,
-        totalDays
-    };
+    return { years, months, days, totalDays };
 }
 
-// Exibir resultado
-function displayResult(age) {
-    yearsDisplay.textContent = age.years;
-    monthsDisplay.textContent = age.months;
-    daysDisplay.textContent = age.days;
-    totalDaysDisplay.textContent = age.totalDays.toLocaleString('pt-BR');
+// Animar valores
+function animateValues() {
+    const values = [yearsDisplay, monthsDisplay, daysDisplay];
     
-    resultSection.style.display = 'block';
-    resultSection.scrollIntoView({ behavior: 'smooth' });
-    
-    // Animação dos números
-    animateNumbers();
-}
-
-// Animar números do resultado
-function animateNumbers() {
-    const numbers = [yearsDisplay, monthsDisplay, daysDisplay];
-    
-    numbers.forEach((element) => {
-        const finalValue = parseInt(element.textContent);
-        let currentValue = 0;
-        const increment = finalValue / 30;
+    values.forEach((element, index) => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(20px)';
         
-        const timer = setInterval(() => {
-            currentValue += increment;
-            if (currentValue >= finalValue) {
-                element.textContent = finalValue;
-                clearInterval(timer);
-            } else {
-                element.textContent = Math.floor(currentValue);
-            }
-        }, 50);
+        setTimeout(() => {
+            element.style.transition = 'all 0.5s ease-out';
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+        }, index * 200);
     });
 }
 
-// Atualizar botão de voz
-function updateVoiceButton() {
-    if (isRecording) {
-        voiceBtn.classList.add('recording');
-        voiceText.textContent = 'Parar Gravação';
-    } else {
-        voiceBtn.classList.remove('recording');
-        voiceText.textContent = 'Falar Datas';
+// Resetar calculadora
+function resetCalculator() {
+    birthDateInput.value = '';
+    currentDateInput.value = '';
+    birthDate = null;
+    currentDate = null;
+    currentRecordingStep = 'birth';
+    isWaitingForNext = false;
+    resultSection.style.display = 'none';
+    
+    if (isRecording && recognition) {
+        recognition.stop();
     }
+    
+    updateVoiceButton();
+    showNotification('Calculadora resetada!', 'info');
+    birthDateInput.focus();
 }
 
-// Mostrar status de voz
-function showVoiceStatus() {
-    voiceStatus.style.display = 'block';
-}
-
-// Esconder status de voz
-function hideVoiceStatus() {
-    voiceStatus.style.display = 'none';
+// Resetar campo específico
+function resetField(field) {
+    if (field === 'birth') {
+        birthDateInput.value = '';
+        birthDate = null;
+        currentRecordingStep = 'birth';
+        isWaitingForNext = false;
+        showNotification('Data de nascimento limpa!', 'info');
+    } else if (field === 'current') {
+        currentDateInput.value = '';
+        currentDate = null;
+        showNotification('Data atual limpa!', 'info');
+    }
+    
+    updateVoiceButton();
+    
+    if (birthDate && currentDate) {
+        calculateAndDisplayAge();
+    } else {
+        resultSection.style.display = 'none';
+    }
 }
 
 // Mostrar notificação
 function showNotification(message, type = 'info') {
-    // Remover notificação existente
     const existingNotification = document.querySelector('.notification');
     if (existingNotification) {
         existingNotification.remove();
     }
     
-    // Criar nova notificação
     const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
+    notification.className = `notification ${type}`;
     notification.textContent = message;
-    
-    // Estilos da notificação
-    Object.assign(notification.style, {
-        position: 'fixed',
-        top: '20px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        background: type === 'error' ? '#e74c3c' : type === 'success' ? '#27ae60' : '#3498db',
-        color: 'white',
-        padding: '12px 20px',
-        borderRadius: '8px',
-        fontSize: '14px',
-        fontWeight: '500',
-        zIndex: '1001',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-        animation: 'slideDown 0.3s ease-out'
-    });
-    
-    // Adicionar animação CSS
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
-        }
-    `;
-    document.head.appendChild(style);
     
     document.body.appendChild(notification);
     
-    // Remover após 3 segundos
     setTimeout(() => {
-        notification.style.animation = 'slideUp 0.3s ease-out';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
-    }, 3000);
+        notification.remove();
+    }, 4000);
 }
-
-// Adicionar animação de saída
-const exitStyle = document.createElement('style');
-exitStyle.textContent = `
-    @keyframes slideUp {
-        from {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-        to {
-            opacity: 0;
-            transform: translateX(-50%) translateY(-20px);
-        }
-    }
-`;
-document.head.appendChild(exitStyle);
