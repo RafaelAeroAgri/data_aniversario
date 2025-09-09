@@ -76,6 +76,15 @@ body {
     letter-spacing: -0.02em;
 }
 
+/* Footer */
+.footer {
+    text-align: center;
+    margin-top: 8px;
+    color: #64748b;
+    font-size: 0.875rem;
+    font-weight: 400;
+}
+
 /* Main content */
 .main {
     flex: 1;
