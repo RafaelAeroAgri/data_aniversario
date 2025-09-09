@@ -1,222 +1,163 @@
 // Configurações globais
 const yearDisplay = document.getElementById('yearDisplay');
-const yearSelector = document.getElementById('yearSelector');
+const prevYearBtn = document.getElementById('prevYearBtn');
+const nextYearBtn = document.getElementById('nextYearBtn');
 const resultYear = document.getElementById('resultYear');
 
 let currentYear = new Date().getFullYear();
 let selectedYear = currentYear;
-let yearList = [];
+let minYear = currentYear - 17; // Máximo que alguém pode não ter 18 anos
+let maxYear = currentYear;
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', function() {
-    generateYearList();
-    createYearSelector();
-    updateResult();
+    initializeApp();
 });
 
-// Gerar lista de anos inteligente
-function generateYearList() {
-    // Lógica: máximo alguém não tem 18 é de (ano atual - 17)
-    // Exemplo: 2025 - 17 = 2008, então vai de 2008 até 2025
-    const minYear = currentYear - 17;
-    const maxYear = currentYear;
-    
-    yearList = [];
-    for (let year = maxYear; year >= minYear; year--) {
-        yearList.push(year);
-    }
-    
-    console.log(`Anos disponíveis: ${minYear} a ${maxYear}`);
-}
-
-// Criar seletor de anos estilo iPhone
-function createYearSelector() {
-    yearSelector.innerHTML = '';
-    
-    const yearListElement = document.createElement('div');
-    yearListElement.className = 'year-list';
-    
-    // Adicionar anos extras para scroll suave
-    const extraYears = 5;
-    
-    // Anos antes (invisíveis)
-    for (let i = 0; i < extraYears; i++) {
-        const yearItem = document.createElement('div');
-        yearItem.className = 'year-item';
-        yearItem.textContent = yearList[0] + extraYears - i;
-        yearItem.style.opacity = '0';
-        yearListElement.appendChild(yearItem);
-    }
-    
-    // Anos reais
-    yearList.forEach((year, index) => {
-        const yearItem = document.createElement('div');
-        yearItem.className = 'year-item';
-        yearItem.textContent = year;
-        yearItem.dataset.year = year;
-        
-        if (year === selectedYear) {
-            yearItem.classList.add('selected');
-        }
-        
-        yearItem.addEventListener('click', () => selectYear(year));
-        yearListElement.appendChild(yearItem);
-    });
-    
-    // Anos depois (invisíveis)
-    for (let i = 1; i <= extraYears; i++) {
-        const yearItem = document.createElement('div');
-        yearItem.className = 'year-item';
-        yearItem.textContent = yearList[yearList.length - 1] - i;
-        yearItem.style.opacity = '0';
-        yearListElement.appendChild(yearItem);
-    }
-    
-    yearSelector.appendChild(yearListElement);
-    
-    // Configurar scroll
-    setupScrollBehavior(yearListElement);
-}
-
-// Configurar comportamento de scroll
-function setupScrollBehavior(yearListElement) {
-    let isScrolling = false;
-    let scrollTimeout;
-    let startY = 0;
-    let isDragging = false;
-    let currentY = 0;
-    let velocity = 0;
-    let lastY = 0;
-    let lastTime = 0;
-    
-    // Mouse events
-    yearSelector.addEventListener('mousedown', (e) => {
-        startY = e.clientY;
-        isDragging = true;
-        yearListElement.style.transition = 'none';
-        yearSelector.style.cursor = 'grabbing';
-        e.preventDefault();
-    });
-    
-    document.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        
-        const deltaY = e.clientY - startY;
-        const currentScroll = yearSelector.scrollTop - deltaY;
-        yearSelector.scrollTop = currentScroll;
-        startY = e.clientY;
-    });
-    
-    document.addEventListener('mouseup', () => {
-        if (isDragging) {
-            isDragging = false;
-            yearSelector.style.cursor = 'grab';
-            snapToNearestYear(yearListElement);
-        }
-    });
-    
-    // Touch events para mobile
-    yearSelector.addEventListener('touchstart', (e) => {
-        startY = e.touches[0].clientY;
-        currentY = startY;
-        isDragging = true;
-        lastY = startY;
-        lastTime = Date.now();
-        yearListElement.style.transition = 'none';
-        e.preventDefault();
-    });
-    
-    yearSelector.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        
-        currentY = e.touches[0].clientY;
-        const deltaY = currentY - startY;
-        const currentScroll = yearSelector.scrollTop - deltaY;
-        yearSelector.scrollTop = currentScroll;
-        startY = currentY;
-        
-        // Calcular velocidade
-        const now = Date.now();
-        const timeDelta = now - lastTime;
-        if (timeDelta > 0) {
-            velocity = (currentY - lastY) / timeDelta;
-        }
-        lastY = currentY;
-        lastTime = now;
-        
-        e.preventDefault();
-    });
-    
-    yearSelector.addEventListener('touchend', () => {
-        if (isDragging) {
-            isDragging = false;
-            
-            // Aplicar momentum se houver velocidade
-            if (Math.abs(velocity) > 0.5) {
-                const momentum = velocity * 100;
-                const targetScroll = yearSelector.scrollTop - momentum;
-                yearSelector.scrollTop = targetScroll;
-            }
-            
-            setTimeout(() => {
-                snapToNearestYear(yearListElement);
-            }, 100);
-        }
-    });
-    
-    // Scroll events
-    yearSelector.addEventListener('scroll', () => {
-        if (!isScrolling) {
-            isScrolling = true;
-            yearListElement.style.transition = 'none';
-        }
-        
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-            snapToNearestYear(yearListElement);
-            isScrolling = false;
-        }, 150);
-    });
-    
-    // Adicionar cursor grab
-    yearSelector.style.cursor = 'grab';
-}
-
-// Alinhar ao ano mais próximo
-function snapToNearestYear(yearListElement) {
-    const itemHeight = 40;
-    const scrollTop = yearSelector.scrollTop;
-    const selectedIndex = Math.round(scrollTop / itemHeight);
-    
-    // Considerar os anos extras
-    const extraYears = 5;
-    const actualIndex = selectedIndex - extraYears;
-    
-    if (actualIndex >= 0 && actualIndex < yearList.length) {
-        const newYear = yearList[actualIndex];
-        selectYear(newYear);
-        
-        // Scroll suave para o item selecionado
-        yearListElement.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-        yearSelector.scrollTop = selectedIndex * itemHeight;
-    }
-}
-
-// Selecionar ano
-function selectYear(year) {
-    selectedYear = year;
-    yearDisplay.textContent = year;
-    
-    // Atualizar seleção visual
-    const yearItems = yearSelector.querySelectorAll('.year-item');
-    yearItems.forEach(item => {
-        item.classList.remove('selected');
-        if (parseInt(item.dataset.year) === year) {
-            item.classList.add('selected');
-        }
-    });
-    
+// Inicializar aplicativo
+function initializeApp() {
+    updateYearDisplay();
+    updateButtons();
     updateResult();
+    
+    // Event listeners
+    prevYearBtn.addEventListener('click', () => changeYear(-1));
+    nextYearBtn.addEventListener('click', () => changeYear(1));
+    
+    // Clique no ano para digitar
+    yearDisplay.addEventListener('click', openYearInput);
+}
+
+// Mudar ano com setas
+function changeYear(direction) {
+    const newYear = selectedYear + direction;
+    
+    // Verificar limites
+    if (newYear >= minYear && newYear <= maxYear) {
+        selectedYear = newYear;
+        updateYearDisplay();
+        updateButtons();
+        updateResult();
+    }
+}
+
+// Atualizar display do ano
+function updateYearDisplay() {
+    yearDisplay.textContent = selectedYear;
+}
+
+// Atualizar estado dos botões
+function updateButtons() {
+    // Botão anterior - desabilitado se estiver no ano mínimo
+    prevYearBtn.disabled = selectedYear <= minYear;
+    
+    // Botão próximo - desabilitado se estiver no ano máximo
+    nextYearBtn.disabled = selectedYear >= maxYear;
+    
+    // Atualizar estilos visuais
+    if (prevYearBtn.disabled) {
+        prevYearBtn.style.opacity = '0.3';
+        prevYearBtn.style.cursor = 'not-allowed';
+    } else {
+        prevYearBtn.style.opacity = '1';
+        prevYearBtn.style.cursor = 'pointer';
+    }
+    
+    if (nextYearBtn.disabled) {
+        nextYearBtn.style.opacity = '0.3';
+        nextYearBtn.style.cursor = 'not-allowed';
+    } else {
+        nextYearBtn.style.opacity = '1';
+        nextYearBtn.style.cursor = 'pointer';
+    }
+}
+
+// Abrir input para digitar ano
+function openYearInput() {
+    const currentYearText = yearDisplay.textContent;
+    
+    // Criar input temporário
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.value = currentYearText;
+    input.min = minYear;
+    input.max = maxYear;
+    input.className = 'year-input';
+    
+    // Estilos do input
+    input.style.cssText = `
+        width: 100%;
+        height: 100%;
+        border: none;
+        background: transparent;
+        font-size: inherit;
+        font-weight: inherit;
+        color: inherit;
+        text-align: center;
+        outline: none;
+        font-family: inherit;
+    `;
+    
+    // Substituir display pelo input
+    yearDisplay.style.display = 'none';
+    yearDisplay.parentNode.insertBefore(input, yearDisplay);
+    
+    // Focar e selecionar texto
+    input.focus();
+    input.select();
+    
+    // Event listeners para o input
+    input.addEventListener('blur', () => {
+        saveYearInput(input);
+    });
+    
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            saveYearInput(input);
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            cancelYearInput(input);
+        }
+    });
+    
+    // Prevenir clique fora de fechar
+    setTimeout(() => {
+        document.addEventListener('click', function closeInput(e) {
+            if (!input.contains(e.target)) {
+                saveYearInput(input);
+                document.removeEventListener('click', closeInput);
+            }
+        });
+    }, 100);
+}
+
+// Salvar ano digitado
+function saveYearInput(input) {
+    const newYear = parseInt(input.value);
+    
+    // Validar ano
+    if (isNaN(newYear) || newYear < minYear || newYear > maxYear) {
+        // Ano inválido - restaurar valor anterior
+        cancelYearInput(input);
+        return;
+    }
+    
+    // Atualizar ano selecionado
+    selectedYear = newYear;
+    updateYearDisplay();
+    updateButtons();
+    updateResult();
+    
+    // Remover input e restaurar display
+    input.remove();
+    yearDisplay.style.display = 'block';
+}
+
+// Cancelar input e restaurar display
+function cancelYearInput(input) {
+    input.remove();
+    yearDisplay.style.display = 'block';
 }
 
 // Atualizar resultado
@@ -225,17 +166,24 @@ function updateResult() {
     resultYear.textContent = eighteenYear;
 }
 
-// Atualizar lista de anos quando o ano mudar
-function updateYearList() {
+// Atualizar limites quando o ano mudar
+function updateYearLimits() {
     const newCurrentYear = new Date().getFullYear();
     if (newCurrentYear !== currentYear) {
         currentYear = newCurrentYear;
-        selectedYear = currentYear;
-        generateYearList();
-        createYearSelector();
+        maxYear = currentYear;
+        minYear = currentYear - 17;
+        
+        // Ajustar ano selecionado se necessário
+        if (selectedYear > maxYear) {
+            selectedYear = maxYear;
+        }
+        
+        updateYearDisplay();
+        updateButtons();
         updateResult();
     }
 }
 
 // Verificar mudança de ano a cada minuto
-setInterval(updateYearList, 60000);
+setInterval(updateYearLimits, 60000);
