@@ -93,8 +93,13 @@ body {
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+.button-group {
+    display: flex;
+    gap: 15px;
+}
+
 .voice-btn {
-    width: 100%;
+    flex: 1;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: none;
     border-radius: 12px;
@@ -129,6 +134,36 @@ body {
 
 .voice-btn.recording:hover {
     box-shadow: 0 12px 35px rgba(231, 76, 60, 0.4);
+}
+
+.reset-btn {
+    flex: 0 0 auto;
+    background: #6c757d;
+    border: none;
+    border-radius: 12px;
+    padding: 18px 20px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 120px;
+}
+
+.reset-btn:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+}
+
+.reset-btn:active {
+    transform: translateY(0);
 }
 
 @keyframes pulse {
@@ -284,6 +319,15 @@ body {
     
     .age-number {
         font-size: 2rem;
+    }
+    
+    .button-group {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .reset-btn {
+        min-width: auto;
     }
 }
 

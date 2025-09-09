@@ -9,6 +9,7 @@ const birthDateInput = document.getElementById('birthDate');
 const currentDateInput = document.getElementById('currentDate');
 const voiceBtn = document.getElementById('voiceBtn');
 const voiceText = document.getElementById('voiceText');
+const resetBtn = document.getElementById('resetBtn');
 const resultSection = document.getElementById('resultSection');
 const voiceStatus = document.getElementById('voiceStatus');
 const yearsDisplay = document.getElementById('years');
@@ -37,6 +38,7 @@ function setupEventListeners() {
     birthDateInput.addEventListener('input', handleBirthDateInput);
     currentDateInput.addEventListener('input', handleCurrentDateInput);
     voiceBtn.addEventListener('click', toggleVoiceRecording);
+    resetBtn.addEventListener('click', resetCalculator);
 }
 
 // Configurar reconhecimento de voz
@@ -131,6 +133,31 @@ function toggleVoiceRecording() {
     } else {
         recognition.start();
     }
+}
+
+// Resetar calculadora
+function resetCalculator() {
+    // Limpar campos de entrada
+    birthDateInput.value = '';
+    currentDateInput.value = '';
+    
+    // Limpar variáveis
+    birthDate = null;
+    currentDate = null;
+    
+    // Esconder resultado
+    resultSection.style.display = 'none';
+    
+    // Parar gravação se estiver ativa
+    if (isRecording && recognition) {
+        recognition.stop();
+    }
+    
+    // Mostrar notificação
+    showNotification('Calculadora resetada!', 'info');
+    
+    // Focar no primeiro campo
+    birthDateInput.focus();
 }
 
 // Processar entrada de voz
