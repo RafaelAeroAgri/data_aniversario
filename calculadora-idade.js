@@ -3,7 +3,6 @@ let recognition = null;
 let isRecording = false;
 let birthDate = null;
 let currentDate = null;
-let currentRecordingStep = 'birth'; // 'birth', 'current', 'waiting'
 let isWaitingForNext = false;
 
 // Elementos DOM
@@ -35,7 +34,6 @@ function initializeApp() {
     currentDateInput.value = '';
     birthDate = null;
     currentDate = null;
-    currentRecordingStep = 'birth';
     isWaitingForNext = false;
     updateVoiceButton();
 }
@@ -75,7 +73,6 @@ function setupVoiceRecognition() {
             console.error('Erro no reconhecimento:', event.error);
             isRecording = false;
             isWaitingForNext = false;
-            currentRecordingStep = 'birth';
             updateVoiceButton();
             showNotification('Erro no reconhecimento de voz', 'error');
         };
@@ -113,7 +110,6 @@ function updateVoiceButton() {
         `;
     } else {
         voiceBtn.classList.remove('recording', 'waiting');
-        const stepText = currentRecordingStep === 'birth' ? 'Data de Nascimento' : 'Data Atual';
         voiceBtn.innerHTML = `
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
@@ -121,7 +117,7 @@ function updateVoiceButton() {
                 <line x1="12" y1="19" x2="12" y2="23"/>
                 <line x1="8" y1="23" x2="16" y2="23"/>
             </svg>
-            Falar ${stepText}
+            Falar Data
         `;
     }
 }
@@ -150,25 +146,36 @@ function processVoiceInput(transcript) {
         if (dates.length === 1) {
             const date = dates[0];
             
-            if (currentRecordingStep === 'birth') {
-                // Preencher data de nascimento
+            // Determinar onde colocar a data baseado na prioridade
+            if (!birthDate && !currentDate) {
+                // Ambos vazios - sempre começar pela data de nascimento
                 birthDate = date;
                 birthDateInput.value = formatDateToDDMMYYYY(birthDate);
                 showNotification('Data de nascimento reconhecida!', 'success');
                 
-                // Aguardar um pouco e preparar para próxima data
+                // Aguardar e preparar para próxima data
                 isWaitingForNext = true;
                 updateVoiceButton();
                 
                 setTimeout(() => {
-                    currentRecordingStep = 'current';
                     isWaitingForNext = false;
                     updateVoiceButton();
                     showNotification('Agora fale a data atual', 'info');
                 }, 2000);
                 
-            } else if (currentRecordingStep === 'current') {
-                // Preencher data atual
+            } else if (!birthDate) {
+                // Só data de nascimento vazia
+                birthDate = date;
+                birthDateInput.value = formatDateToDDMMYYYY(birthDate);
+                showNotification('Data de nascimento reconhecida!', 'success');
+                
+                // Se já tem data atual, calcular
+                if (currentDate) {
+                    calculateAndDisplayAge();
+                }
+                
+            } else if (!currentDate) {
+                // Só data atual vazia
                 currentDate = date;
                 currentDateInput.value = formatDateToDDMMYYYY(currentDate);
                 showNotification('Data atual reconhecida!', 'success');
@@ -176,10 +183,35 @@ function processVoiceInput(transcript) {
                 // Calcular idade
                 calculateAndDisplayAge();
                 
-                // Resetar para próxima vez
-                currentRecordingStep = 'birth';
-                updateVoiceButton();
+            } else {
+                // Ambas preenchidas - substituir a mais recente baseado na data falada
+                if (date > birthDate) {
+                    currentDate = date;
+                    currentDateInput.value = formatDateToDDMMYYYY(currentDate);
+                    showNotification('Data atual atualizada!', 'info');
+                } else {
+                    birthDate = date;
+                    birthDateInput.value = formatDateToDDMMYYYY(birthDate);
+                    showNotification('Data de nascimento atualizada!', 'info');
+                }
+                calculateAndDisplayAge();
             }
+            
+            // Verificar se precisa inverter as datas
+            if (birthDate && currentDate && birthDate > currentDate) {
+                // Inverter as datas
+                const tempDate = birthDate;
+                const tempInput = birthDateInput.value;
+                
+                birthDate = currentDate;
+                currentDate = tempDate;
+                birthDateInput.value = currentDateInput.value;
+                currentDateInput.value = tempInput;
+                
+                showNotification('Datas invertidas automaticamente!', 'info');
+                calculateAndDisplayAge();
+            }
+            
         } else {
             showNotification('Não foi possível entender a data. Tente falar: "15/01/1990" ou "15 de janeiro de 1990"', 'error');
         }
@@ -365,7 +397,6 @@ function resetCalculator() {
     currentDateInput.value = '';
     birthDate = null;
     currentDate = null;
-    currentRecordingStep = 'birth';
     isWaitingForNext = false;
     resultSection.style.display = 'none';
     
@@ -383,7 +414,6 @@ function resetField(field) {
     if (field === 'birth') {
         birthDateInput.value = '';
         birthDate = null;
-        currentRecordingStep = 'birth';
         isWaitingForNext = false;
         showNotification('Data de nascimento limpa!', 'info');
     } else if (field === 'current') {
