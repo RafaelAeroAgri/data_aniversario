@@ -156,7 +156,7 @@ body {
 
 .months-display {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
 }
 
@@ -190,6 +190,23 @@ body {
     line-height: 1;
 }
 
+.month-item.selected {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.month-item.selected .month-name {
+    color: white;
+    font-weight: 700;
+}
+
+.month-item.selected .month-number {
+    color: white;
+    font-size: 2.2rem;
+}
+
 /* Responsividade */
 @media (max-width: 480px) {
     .container {
@@ -211,6 +228,10 @@ body {
     .months-display {
         grid-template-columns: 1fr;
         gap: 15px;
+    }
+    
+    .month-item.selected {
+        transform: scale(1.02);
     }
     
     .month-item {

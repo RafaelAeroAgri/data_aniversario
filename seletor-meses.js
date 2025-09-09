@@ -4,6 +4,7 @@ const resultSection = document.getElementById('resultSection');
 const month1 = document.getElementById('month1');
 const month2 = document.getElementById('month2');
 const month3 = document.getElementById('month3');
+const selectedMonth = document.getElementById('selectedMonth');
 
 // Nomes dos meses
 const monthNames = [
@@ -23,11 +24,11 @@ function setupEventListeners() {
 
 // Lidar com seleção de mês
 function handleMonthSelection(event) {
-    const selectedMonth = parseInt(event.target.value);
+    const selectedMonthNumber = parseInt(event.target.value);
     
-    if (selectedMonth) {
-        const previousMonths = getPreviousMonths(selectedMonth);
-        displayPreviousMonths(previousMonths);
+    if (selectedMonthNumber) {
+        const previousMonths = getPreviousMonths(selectedMonthNumber);
+        displayPreviousMonths(previousMonths, selectedMonthNumber);
     } else {
         hideResult();
     }
@@ -55,11 +56,18 @@ function getPreviousMonths(selectedMonth) {
 }
 
 // Exibir os meses anteriores
-function displayPreviousMonths(months) {
+function displayPreviousMonths(months, selectedMonthNumber) {
     // Atualizar os elementos
     updateMonthItem(month1, months[0]);
     updateMonthItem(month2, months[1]);
     updateMonthItem(month3, months[2]);
+    
+    // Atualizar o mês selecionado
+    const selectedMonthData = {
+        number: selectedMonthNumber,
+        name: monthNames[selectedMonthNumber - 1]
+    };
+    updateMonthItem(selectedMonth, selectedMonthData);
     
     // Mostrar resultado
     resultSection.style.display = 'block';
@@ -85,7 +93,7 @@ function hideResult() {
 
 // Animar itens dos meses
 function animateMonthItems() {
-    const items = [month1, month2, month3];
+    const items = [month1, month2, month3, selectedMonth];
     
     items.forEach((item, index) => {
         // Resetar animação
