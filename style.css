@@ -19,7 +19,6 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 24px;
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
@@ -27,7 +26,7 @@ body {
 /* Header */
 .header {
     text-align: center;
-    margin-bottom: 48px;
+    margin-bottom: 24px;
     color: #1e293b;
 }
 
@@ -50,7 +49,7 @@ body {
 
 /* Main content */
 .main {
-    flex: 1;
+    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -175,7 +174,7 @@ body {
     }
     
     .header {
-        margin-bottom: 40px;
+        margin-bottom: 20px;
     }
     
     .header h1 {
@@ -194,7 +193,7 @@ body {
     }
     
     .header {
-        margin-bottom: 32px;
+        margin-bottom: 16px;
     }
     
     .header h1 {
@@ -240,7 +239,7 @@ body {
     }
     
     .header {
-        margin-bottom: 28px;
+        margin-bottom: 12px;
     }
     
     .header h1 {
@@ -356,7 +355,7 @@ body {
     }
     
     .header {
-        margin-bottom: 24px;
+        margin-bottom: 8px;
     }
     
     .header h1 {
