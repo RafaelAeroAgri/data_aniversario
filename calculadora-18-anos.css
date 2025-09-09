@@ -205,7 +205,22 @@ body {
 }
 
 /* Responsividade */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+    
+    .header {
+        margin-top: 60px;
+        margin-bottom: 40px;
+    }
+    
+    .year-picker-container {
+        gap: 28px;
+    }
+}
+
+@media (max-width: 640px) {
     .container {
         padding: 16px;
     }
@@ -220,8 +235,8 @@ body {
     }
     
     .year-display {
-        font-size: 3rem;
-        padding: 16px;
+        font-size: 3.5rem;
+        padding: 18px;
     }
     
     .year-selector {
@@ -238,17 +253,22 @@ body {
     }
     
     .result-year {
-        font-size: 2.5rem;
+        font-size: 2.75rem;
     }
     
     .result-display {
-        padding: 24px;
+        padding: 28px;
     }
 }
 
-@media (max-width: 360px) {
+@media (max-width: 480px) {
+    .container {
+        padding: 12px;
+    }
+    
     .header {
         margin-top: 45px;
+        margin-bottom: 28px;
     }
     
     .header h1 {
@@ -256,7 +276,8 @@ body {
     }
     
     .year-display {
-        font-size: 2.5rem;
+        font-size: 3rem;
+        padding: 16px;
     }
     
     .year-selector {
@@ -273,6 +294,149 @@ body {
     }
     
     .result-year {
+        font-size: 2.5rem;
+    }
+    
+    .result-display {
+        padding: 24px;
+    }
+    
+    .result-label {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 414px) {
+    .header h1 {
+        font-size: 1.75rem;
+    }
+    
+    .year-display {
+        font-size: 2.75rem;
+        padding: 14px;
+    }
+    
+    .year-selector {
+        height: 150px;
+    }
+    
+    .year-item {
+        height: 30px;
+        font-size: 0.9375rem;
+    }
+    
+    .year-item.selected {
+        font-size: 1.125rem;
+    }
+    
+    .result-year {
         font-size: 2.25rem;
+    }
+    
+    .result-display {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 375px) {
+    .header h1 {
+        font-size: 1.625rem;
+    }
+    
+    .year-display {
+        font-size: 2.5rem;
+    }
+    
+    .year-selector {
+        height: 140px;
+    }
+    
+    .year-item {
+        height: 28px;
+        font-size: 0.875rem;
+    }
+    
+    .year-item.selected {
+        font-size: 1rem;
+    }
+    
+    .result-year {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .container {
+        padding: 8px;
+    }
+    
+    .header {
+        margin-top: 40px;
+        margin-bottom: 24px;
+    }
+    
+    .header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .year-picker-container {
+        gap: 20px;
+    }
+    
+    .year-display {
+        font-size: 2.25rem;
+        padding: 12px;
+    }
+    
+    .year-selector {
+        height: 130px;
+    }
+    
+    .year-item {
+        height: 26px;
+        font-size: 0.8125rem;
+    }
+    
+    .year-item.selected {
+        font-size: 0.9375rem;
+    }
+    
+    .result-year {
+        font-size: 1.875rem;
+    }
+    
+    .result-display {
+        padding: 16px;
+    }
+    
+    .result-label {
+        font-size: 0.9375rem;
+    }
+}
+
+@media (max-width: 320px) {
+    .header h1 {
+        font-size: 1.375rem;
+    }
+    
+    .year-display {
+        font-size: 2rem;
+    }
+    
+    .year-selector {
+        height: 120px;
+    }
+    
+    .year-item {
+        height: 24px;
+        font-size: 0.75rem;
+    }
+    
+    .year-item.selected {
+        font-size: 0.875rem;
+    }
+    
+    .result-year {
+        font-size: 1.75rem;
     }
 }

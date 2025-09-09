@@ -217,13 +217,24 @@ body {
 }
 
 /* Responsividade */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+    
+    .header {
+        margin-top: 60px;
+        margin-bottom: 40px;
+    }
+}
+
 @media (min-width: 640px) {
     .months-display {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
     .container {
         padding: 16px;
     }
@@ -242,7 +253,7 @@ body {
     }
     
     .month-item {
-        padding: 16px;
+        padding: 18px;
     }
     
     .month-name {
@@ -254,13 +265,30 @@ body {
     }
 }
 
-@media (max-width: 360px) {
+@media (max-width: 480px) {
+    .container {
+        padding: 12px;
+    }
+    
     .header {
         margin-top: 45px;
+        margin-bottom: 28px;
     }
     
     .header h1 {
         font-size: 1.875rem;
+    }
+    
+    .result-section {
+        padding: 20px;
+    }
+    
+    .result-card h2 {
+        font-size: 1.375rem;
+    }
+    
+    .month-item {
+        padding: 16px;
     }
     
     .month-name {
@@ -268,6 +296,87 @@ body {
     }
     
     .month-number {
+        font-size: 1.625rem;
+    }
+}
+
+@media (max-width: 414px) {
+    .header h1 {
+        font-size: 1.75rem;
+    }
+    
+    .month-item {
+        padding: 14px;
+    }
+    
+    .month-name {
+        font-size: 0.9375rem;
+    }
+    
+    .month-number {
         font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 375px) {
+    .header h1 {
+        font-size: 1.625rem;
+    }
+    
+    .month-name {
+        font-size: 0.875rem;
+    }
+    
+    .month-number {
+        font-size: 1.375rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .container {
+        padding: 8px;
+    }
+    
+    .header {
+        margin-top: 40px;
+        margin-bottom: 24px;
+    }
+    
+    .header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .result-section {
+        padding: 16px;
+    }
+    
+    .result-card h2 {
+        font-size: 1.25rem;
+    }
+    
+    .month-item {
+        padding: 12px;
+    }
+    
+    .month-name {
+        font-size: 0.8125rem;
+    }
+    
+    .month-number {
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 320px) {
+    .header h1 {
+        font-size: 1.375rem;
+    }
+    
+    .month-name {
+        font-size: 0.75rem;
+    }
+    
+    .month-number {
+        font-size: 1.125rem;
     }
 }
