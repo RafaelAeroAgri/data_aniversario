@@ -161,6 +161,13 @@ function processVoiceInput(transcript) {
                     isWaitingForNext = false;
                     updateVoiceButton();
                     showNotification('Agora fale a data atual', 'info');
+                    
+                    // Iniciar gravação automaticamente após o aguarde
+                    setTimeout(() => {
+                        if (!isRecording && !isWaitingForNext) {
+                            recognition.start();
+                        }
+                    }, 500);
                 }, 2000);
                 
             } else if (!birthDate) {

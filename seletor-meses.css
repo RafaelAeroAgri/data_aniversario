@@ -28,7 +28,7 @@ body {
 .header {
     text-align: center;
     margin-bottom: 48px;
-    margin-top: 100px;
+    margin-top: 120px;
     color: #1e293b;
     position: relative;
 }
@@ -223,7 +223,7 @@ body {
     }
     
     .header {
-        margin-top: 90px;
+        margin-top: 110px;
         margin-bottom: 40px;
     }
 }
@@ -240,7 +240,7 @@ body {
     }
     
     .header {
-        margin-top: 80px;
+        margin-top: 100px;
         margin-bottom: 32px;
     }
     
@@ -271,7 +271,7 @@ body {
     }
     
     .header {
-        margin-top: 75px;
+        margin-top: 95px;
         margin-bottom: 28px;
     }
     
@@ -338,7 +338,7 @@ body {
     }
     
     .header {
-        margin-top: 70px;
+        margin-top: 90px;
         margin-bottom: 24px;
     }
     
