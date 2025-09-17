@@ -46,6 +46,11 @@ function initializeApp() {
 function setupEventListeners() {
     birthDateInput.addEventListener('input', handleBirthDateInput);
     currentDateInput.addEventListener('input', handleCurrentDateInput);
+    
+    // Adicionar formatação automática também no keydown para melhor UX
+    birthDateInput.addEventListener('keydown', handleDateKeydown);
+    currentDateInput.addEventListener('keydown', handleDateKeydown);
+    
     voiceBtn.addEventListener('click', toggleVoiceRecording);
     resetBtn.addEventListener('click', resetCalculator);
     resetBirthBtn.addEventListener('click', () => resetField('birth'));
@@ -300,7 +305,19 @@ function formatDateToDDMMYYYY(date) {
 
 // Lidar com entrada de data de nascimento
 function handleBirthDateInput(event) {
-    const value = event.target.value;
+    const input = event.target;
+    let value = input.value.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
+    
+    // Formatação automática com barras
+    if (value.length >= 2) {
+        value = value.substring(0, 2) + '/' + value.substring(2);
+    }
+    if (value.length >= 5) {
+        value = value.substring(0, 5) + '/' + value.substring(5, 9);
+    }
+    
+    input.value = value;
+    
     if (value.length === 10) {
         const date = parseDateInput(value);
         if (date) {
@@ -317,7 +334,19 @@ function handleBirthDateInput(event) {
 
 // Lidar com entrada de data atual
 function handleCurrentDateInput(event) {
-    const value = event.target.value;
+    const input = event.target;
+    let value = input.value.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
+    
+    // Formatação automática com barras
+    if (value.length >= 2) {
+        value = value.substring(0, 2) + '/' + value.substring(2);
+    }
+    if (value.length >= 5) {
+        value = value.substring(0, 5) + '/' + value.substring(5, 9);
+    }
+    
+    input.value = value;
+    
     if (value.length === 10) {
         const date = parseDateInput(value);
         if (date) {
@@ -329,6 +358,35 @@ function handleCurrentDateInput(event) {
     } else {
         currentDate = null;
         resultSection.style.display = 'none';
+    }
+}
+
+// Lidar com teclas especiais nos campos de data
+function handleDateKeydown(event) {
+    const input = event.target;
+    const key = event.key;
+    
+    // Permitir teclas de navegação e controle
+    if (['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(key)) {
+        return; // Permitir comportamento padrão
+    }
+    
+    // Permitir Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+    if (event.ctrlKey && ['a', 'c', 'v', 'x'].includes(key.toLowerCase())) {
+        return; // Permitir comportamento padrão
+    }
+    
+    // Bloquear caracteres não numéricos
+    if (!/^\d$/.test(key)) {
+        event.preventDefault();
+        return;
+    }
+    
+    // Limitar a 8 dígitos (10 caracteres com as barras)
+    const currentValue = input.value.replace(/\D/g, '');
+    if (currentValue.length >= 8) {
+        event.preventDefault();
+        return;
     }
 }
 
